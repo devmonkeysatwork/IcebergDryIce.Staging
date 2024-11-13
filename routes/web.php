@@ -50,4 +50,4 @@ Route::group([
     Route::crud('warehouse-sales', 'WarehouseSaleCrudController');
 });
 
-// require __DIR__ . '/auth.php';
+ require __DIR__ . '/auth.php';

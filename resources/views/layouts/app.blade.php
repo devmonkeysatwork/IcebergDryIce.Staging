@@ -9,7 +9,7 @@
   <title>{{ config('app.name', 'IcebergDryIce') }}</title>
 
   <!-- Styles -->
-  <link href="{{ mix('css/app.css') }}" rel="stylesheet">
+  <link href="{{ asset('css/app.css') }}" rel="stylesheet">
   <link href="{{ asset('vendor/backpack/backpack.base.css') }}" rel="stylesheet">
 </head>
 
@@ -26,9 +26,6 @@
   <!-- Scripts -->
   <script src="{{ mix('js/app.js') }}"></script>
   <script src="{{ asset('vendor/backpack/backpack.base.js') }}"></script>
-</body>
-
-</html>
 </body>
 
 </html>
