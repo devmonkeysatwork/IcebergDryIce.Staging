@@ -826,14 +826,15 @@
                             const modal = bootstrap.Modal.getInstance(summaryModal);
                             modal.hide();
 
-                            // Show success notification
+                            // Show success notification (auto-dismisses, no click required)
                             Swal.fire({
                                 title: 'Success!',
                                 text: mode === 'edit' ?
                                     'Order has been updated successfully' :
                                     'Order has been created successfully',
                                 icon: 'success',
-                                confirmButtonText: 'OK'
+                                timer: 1500,
+                                showConfirmButton: false
                             }).then(() => {
                                 window.location.reload();
                             });
