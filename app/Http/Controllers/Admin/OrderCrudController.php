@@ -1500,12 +1500,12 @@ class OrderCrudController extends CrudController
         $defaultValues = [
             'customer_id'      => null,
             'product_id'       => null,
-            'amount'           => 1,
+            'amount'           => 0,
             'pickup_delivery'  => 'delivery',
             'po_number'        => '',
             'recurring'        => 'non-recurring',
             'delivery_date'    => now()->format('Y-m-d'),
-            'delivery_time'    => '',
+            'delivery_time'    => '17:00',
             'notes'            => '',
         ];
 
