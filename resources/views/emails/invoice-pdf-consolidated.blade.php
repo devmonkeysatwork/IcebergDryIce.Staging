@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <title>Consolidated Invoice</title>
     <style>
-        @import url('https://fonts.googleapis.com/css?family=Inter:400,600,700');
-
         body {
             margin: 0;
             padding: 40px 0;
             -webkit-font-smoothing: antialiased;
-            font-family: 'Inter', sans-serif;
+            font-family: Helvetica, Arial, sans-serif;
         }
         table { border-collapse: collapse; }
         p { margin: 0; }
@@ -71,7 +69,7 @@
                     </td>
                     <td style="vertical-align: top;text-align:right;">
                         <p style="font-size: 10px;color:#5E6470;">Amount</p>
-                        <p style="background-color:#0B75AF;color:#fff;font-weight:700;font-size:20px;padding:5px 10px;display:inline-block;border-radius:4px;">
+                        <p style="color:#1A1C21;font-weight:700;font-size:20px;">
                             ${{ number_format($totalAmount, 2) }}
                         </p>
                     </td>
