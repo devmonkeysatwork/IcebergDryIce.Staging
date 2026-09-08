@@ -362,11 +362,6 @@
         }
 
         footer { display: none; }
-
-        /* Force this modal above its backdrop; scoped to this element only. */
-        #previewDraftModal {
-            z-index: 1060;
-        }
     </style>
 @endsection
 
@@ -588,7 +583,7 @@
             });
 
             // Preview the invoice as it will actually look, before finalizing.
-            const previewDraftModal     = new bootstrap.Modal(document.getElementById('previewDraftModal'));
+            // const previewDraftModal     = new bootstrap.Modal(document.getElementById('previewDraftModal'));
             const previewDraftModalBody = document.getElementById('previewDraftModalBody');
             const previewDraftLoader    = document.getElementById('previewDraftLoader');
             const previewDraftUrlTemplate = @json(route('consolidated.invoice.view', ['invoice' => 999999999]));
@@ -600,7 +595,7 @@
                 previewDraftLoader.style.display = 'block';
                 previewDraftModalBody.appendChild(previewDraftLoader);
 
-                previewDraftModal.show();
+                $('#previewDraftModal').modal('show');
 
                 fetch(previewDraftUrlTemplate.replace('999999999', currentDraftId), {
                     headers: {
@@ -614,7 +609,16 @@
                     })
                     .then(html => {
                         previewDraftLoader.style.display = 'none';
-                        previewDraftModalBody.innerHTML = html;
+                        // The fetched HTML is a full standalone document (its own
+                        // <style> block with rules like "body { padding: 40px 0 }")
+                        // meant for the PDF. Loading it via innerHTML would leak
+                        // those rules onto this live page's real <body>. An iframe
+                        // keeps the fetched document's styles fully isolated.
+                        const iframe = document.createElement('iframe');
+                        iframe.style.cssText = 'width:100%; height:75vh; border:0; display:block;';
+                        previewDraftModalBody.innerHTML = '';
+                        previewDraftModalBody.appendChild(iframe);
+                        iframe.srcdoc = html;
                     })
                     .catch(() => {
                         previewDraftModalBody.innerHTML = `
