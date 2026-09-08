@@ -188,7 +188,13 @@
                                 placeholder="Optional notes"></textarea>
                         </div>
 
-                        <div class="mt-4 d-flex gap-2">
+                        <div class="mt-3">
+                            <button id="preview-draft-btn" class="btn btn-outline-secondary w-100">
+                                <i class="la la-eye"></i> Preview Invoice
+                            </button>
+                        </div>
+
+                        <div class="mt-2 d-flex gap-2">
                             <button id="finalize-btn" class="btn btn-primary flex-grow-1">
                                 <i class="la la-check-circle"></i> Confirm &amp; Generate Invoice
                             </button>
@@ -212,6 +218,26 @@
                     <i class="la la-file-pdf"></i> Download PDF
                 </a>
                 <button id="start-new-btn" class="btn btn-secondary mt-3 mx-2">Start New Invoice</button>
+            </div>
+        </div>
+
+        <div class="modal fade" id="previewDraftModal" tabindex="-1" aria-labelledby="previewDraftModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="previewDraftModalLabel">Invoice Preview</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0" id="previewDraftModalBody">
+                        <div class="text-center py-5" id="previewDraftLoader">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-2 text-muted">Loading preview...</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -554,6 +580,43 @@
             document.getElementById('invoice-notes').addEventListener('blur', function () {
                 if (!currentDraftId) return;
                 sendDraftAction({ action: 'update_notes', notes: this.value });
+            });
+
+            // Preview the invoice as it will actually look, before finalizing.
+            const previewDraftModal     = new bootstrap.Modal(document.getElementById('previewDraftModal'));
+            const previewDraftModalBody = document.getElementById('previewDraftModalBody');
+            const previewDraftLoader    = document.getElementById('previewDraftLoader');
+            const previewDraftUrlTemplate = @json(route('consolidated.invoice.view', ['invoice' => 999999999]));
+
+            document.getElementById('preview-draft-btn').addEventListener('click', function () {
+                if (!currentDraftId) return;
+
+                previewDraftModalBody.innerHTML = '';
+                previewDraftLoader.style.display = 'block';
+                previewDraftModalBody.appendChild(previewDraftLoader);
+
+                previewDraftModal.show();
+
+                fetch(previewDraftUrlTemplate.replace('999999999', currentDraftId), {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    }
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Failed to load preview');
+                        return res.text();
+                    })
+                    .then(html => {
+                        previewDraftLoader.style.display = 'none';
+                        previewDraftModalBody.innerHTML = html;
+                    })
+                    .catch(() => {
+                        previewDraftModalBody.innerHTML = `
+                    <div class="alert alert-danger m-3">
+                        Failed to load the invoice preview. Please try again.
+                    </div>`;
+                    });
             });
 
             document.getElementById('cancel-draft-btn').addEventListener('click', function () {
