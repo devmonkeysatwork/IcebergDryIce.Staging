@@ -362,6 +362,11 @@
         }
 
         footer { display: none; }
+
+        /* Force this modal above its backdrop; scoped to this element only. */
+        #previewDraftModal {
+            z-index: 1060;
+        }
     </style>
 @endsection
 
