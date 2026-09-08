@@ -73,6 +73,7 @@
 
                 {{-- THE ACTUAL CONTENT --}}
                 <div class="col-md-12">
+                    <div style="overflow-x: auto;">
                     <table>
                         <thead>
                         <tr>
@@ -192,6 +193,7 @@
 
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
             {{-- Updated pagination section --}}
