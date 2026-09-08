@@ -583,7 +583,7 @@
             });
 
             // Preview the invoice as it will actually look, before finalizing.
-            // const previewDraftModal     = new bootstrap.Modal(document.getElementById('previewDraftModal'));
+            const previewDraftModal     = new bootstrap.Modal(document.getElementById('previewDraftModal'));
             const previewDraftModalBody = document.getElementById('previewDraftModalBody');
             const previewDraftLoader    = document.getElementById('previewDraftLoader');
             const previewDraftUrlTemplate = @json(route('consolidated.invoice.view', ['invoice' => 999999999]));
@@ -595,7 +595,7 @@
                 previewDraftLoader.style.display = 'block';
                 previewDraftModalBody.appendChild(previewDraftLoader);
 
-                $('#previewDraftModal').modal('show');
+                previewDraftModal.show();
 
                 fetch(previewDraftUrlTemplate.replace('999999999', currentDraftId), {
                     headers: {
