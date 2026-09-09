@@ -25,7 +25,14 @@ class SendDailyOrderSummary extends Command
             ->with(['items.product', 'customer'])
             ->get();
 
-        // Get today's recurring orders
+        // Get today's recurring/standing orders (these were previously missing
+        // entirely from this summary — only next week's lookahead was included).
+        $todayRecurringOrders = RecurringOrder::whereDate('scheduled_delivery_date', $today)
+            ->where('status', '=', RecurringOrder::OPEN)
+            ->with(['order.items.product', 'order.customer'])
+            ->get();
+
+        // Next week's recurring orders, kept as an advance-notice lookahead.
         $nextRecurringOrders = RecurringOrder::whereDate('scheduled_delivery_date', $nextWeek)
             ->where('status', '=', RecurringOrder::OPEN)
             ->with(['order.items.product', 'order.customer'])
@@ -34,6 +41,7 @@ class SendDailyOrderSummary extends Command
 
         Mail::send('emails.orders-summary', [
             'todayOrders' => $todayOrders,
+            'todayRecurringOrders' => $todayRecurringOrders,
             'nextRecurringOrders' => $nextRecurringOrders,
             'date' => $today,
             'nextWeek' => $nextWeek->format('F d, Y')

@@ -56,7 +56,7 @@
 <div class="container">
     <h1>Daily Order Summary - {{ $date->format('F d, Y') }}</h1>
 
-    <p>Total Orders: <strong>{{ ($todayOrders->count() + $nextRecurringOrders->count()) }}</strong></p>
+    <p>Total Orders Today: <strong>{{ ($todayOrders->count() + $todayRecurringOrders->count()) }}</strong></p>
 
     <table>
         <thead>
@@ -84,10 +84,37 @@
                 </td>
             </tr>
         @empty
-            <tr>
-                <td colspan="3" style="text-align: center; color: #666;">No orders for today</td>
-            </tr>
+            @if($todayRecurringOrders->count() === 0)
+                <tr>
+                    <td colspan="3" style="text-align: center; color: #666;">No orders for today</td>
+                </tr>
+            @endif
         @endforelse
+
+        @if($todayRecurringOrders->count() > 0)
+            <tr>
+                <td colspan="3" class="section-header">
+                    Standing (Recurring) Orders due Today
+                </td>
+            </tr>
+            @foreach($todayRecurringOrders as $order)
+                <tr>
+                    <td>
+                        <strong>{{ $order->order?->customer?->name }}</strong><br>
+                    </td>
+                    <td>
+                        <ul>
+                            @foreach($order->order?->items as $item)
+                                <li>{{ $item->product->product_name ?? 'Product' }} - {{ $item->amount_of_items }} units</li>
+                            @endforeach
+                        </ul>
+                    </td>
+                    <td>
+                        <strong>Phone:</strong> {{ $order->order?->customer->phone }}
+                    </td>
+                </tr>
+            @endforeach
+        @endif
 
         @if($nextRecurringOrders->count() > 0)
             <tr>
