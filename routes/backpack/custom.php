@@ -157,6 +157,7 @@ Route::group([
         Route::get('/{invoice}/pdf', [InvoiceGeneratorController::class, 'downloadPdf'])->name('admin.invoice-generator.pdf');
         Route::get('/invoice/{invoice}/view', [InvoiceGeneratorController::class, 'viewInvoice'])->name('consolidated.invoice.view');
         Route::post('/invoice/{invoice}/email', [InvoiceGeneratorController::class, 'sendInvoiceEmail'])->name('consolidated.invoice.email');
+        Route::get('/invoice/{invoice}/email-history', [InvoiceGeneratorController::class, 'emailHistory'])->name('consolidated.invoice.email-history');
     });
 
 });

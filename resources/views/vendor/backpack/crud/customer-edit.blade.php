@@ -172,6 +172,11 @@
                                                             title="Mail Invoice">
                                                         <i class=""></i>
                                                     </button>
+                                                    <button class="btn btn-secondary btn-view la la-history view-email-history-btn"
+                                                            onclick="viewEmailHistory('{{ route('consolidated.invoice.email-history', $invoice->id) }}')"
+                                                            title="View Send History">
+                                                        <i class=""></i>
+                                                    </button>
                                                 @endif
                                             </td>
                                         </tr>
@@ -748,6 +753,56 @@
                         });
                 }
             });
+        }
+
+        function viewEmailHistory(url) {
+            fetch(url, {
+                headers: { 'Accept': 'application/json' }
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        Swal.fire('Error', 'Could not load send history.', 'error');
+                        return;
+                    }
+
+                    if (!data.logs.length) {
+                        Swal.fire('Send History', 'This invoice has never been emailed.', 'info');
+                        return;
+                    }
+
+                    const rows = data.logs.map(log => {
+                        const statusLabel = log.status === 'sent'
+                            ? '<span style="color:green;">Sent</span>'
+                            : '<span style="color:#c0392b;">Failed</span>';
+                        return `<tr>
+                            <td style="padding:4px 8px;">${log.created_at}</td>
+                            <td style="padding:4px 8px;">${log.sent_to}</td>
+                            <td style="padding:4px 8px;">${statusLabel}</td>
+                            <td style="padding:4px 8px;">${log.sent_by || 'N/A'}</td>
+                        </tr>`;
+                    }).join('');
+
+                    Swal.fire({
+                        title: 'Invoice Send History',
+                        html: `<table style="width:100%; text-align:left; font-size:13px;">
+                            <thead>
+                                <tr>
+                                    <th style="padding:4px 8px;">When</th>
+                                    <th style="padding:4px 8px;">Recipient</th>
+                                    <th style="padding:4px 8px;">Status</th>
+                                    <th style="padding:4px 8px;">Sent By</th>
+                                </tr>
+                            </thead>
+                            <tbody>${rows}</tbody>
+                        </table>`,
+                        width: 600,
+                        confirmButtonText: 'Close'
+                    });
+                })
+                .catch(() => {
+                    Swal.fire('Error', 'Could not load send history.', 'error');
+                });
         }
 
     </script>

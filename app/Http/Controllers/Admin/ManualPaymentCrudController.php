@@ -396,8 +396,31 @@ class ManualPaymentCrudController extends CrudController
             ])->output();
 
             Mail::to($email)->send(new ConsolidatedInvoiceMail($invoice, $invoice->customer, $pdfData));
+
+            $this->logInvoiceEmail($invoice->id, $email, \App\Models\InvoiceEmailLog::STATUS_SENT);
         } catch (\Throwable $e) {
             \Log::error('Consolidated invoice email failed: ' . $e->getMessage());
+
+            $this->logInvoiceEmail($invoice->id, $email ?? null, \App\Models\InvoiceEmailLog::STATUS_FAILED, $e->getMessage());
+        }
+    }
+
+    /**
+     * Record an invoice email send attempt. Deliberately never throws -- a
+     * logging failure must never affect the send flow.
+     */
+    private function logInvoiceEmail($invoiceId, ?string $sentTo, string $status, ?string $errorMessage = null): void
+    {
+        try {
+            \App\Models\InvoiceEmailLog::create([
+                'invoice_id'    => $invoiceId,
+                'sent_to'       => $sentTo ?? 'unknown',
+                'sent_by'       => auth()->id(),
+                'status'        => $status,
+                'error_message' => $errorMessage,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Failed to record invoice email log: ' . $e->getMessage());
         }
     }
 

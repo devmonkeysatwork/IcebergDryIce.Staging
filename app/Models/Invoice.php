@@ -111,4 +111,9 @@ class Invoice extends Model
     {
         return $this->hasMany(InvoiceFlatCharges::class, 'invoice_id');
     }
+
+    public function emailLogs()
+    {
+        return $this->hasMany(InvoiceEmailLog::class, 'invoice_id')->latest();
+    }
 }

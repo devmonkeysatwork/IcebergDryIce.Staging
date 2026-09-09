@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\CustomerPricing;
 use App\Models\Invoice;
+use App\Models\InvoiceEmailLog;
 use App\Models\InvoiceFlatCharges;
 use App\Models\InvoiceLineItems;
 use App\Models\InvoiceOrders;
@@ -580,6 +581,8 @@ class InvoiceGeneratorController extends Controller
 
             Mail::to($email)->send(new ConsolidatedInvoiceMail($invoice, $customer, $pdfData));
 
+            $this->logInvoiceEmail($invoice->id, $email, InvoiceEmailLog::STATUS_SENT);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Invoice emailed to ' . $email,
@@ -588,10 +591,54 @@ class InvoiceGeneratorController extends Controller
         } catch (\Throwable $e) {
             \Log::error('Send consolidated invoice email failed: ' . $e->getMessage());
 
+            $this->logInvoiceEmail($invoiceId, $email ?? null, InvoiceEmailLog::STATUS_FAILED, $e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send invoice email. Please try again.',
             ], 500);
+        }
+    }
+
+    /**
+     * Read-only: return this invoice's email send history as JSON (date,
+     * recipient, status, who sent it). Read-only, so it cannot affect any
+     * existing flow.
+     */
+    public function emailHistory($invoiceId)
+    {
+        $invoice = Invoice::findOrFail($invoiceId);
+
+        $logs = $invoice->emailLogs()->with('sender')->get()->map(fn ($log) => [
+            'sent_to'    => $log->sent_to,
+            'status'     => $log->status,
+            'error'      => $log->error_message,
+            'sent_by'    => $log->sender->name ?? null,
+            'created_at' => $log->created_at->format('Y-m-d H:i'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'logs'    => $logs,
+        ]);
+    }
+
+    /**
+     * Record an invoice email send attempt. Deliberately never throws -- a
+     * logging failure must never affect the send response the caller sees.
+     */
+    private function logInvoiceEmail($invoiceId, ?string $sentTo, string $status, ?string $errorMessage = null): void
+    {
+        try {
+            InvoiceEmailLog::create([
+                'invoice_id'    => $invoiceId,
+                'sent_to'       => $sentTo ?? 'unknown',
+                'sent_by'       => auth()->id(),
+                'status'        => $status,
+                'error_message' => $errorMessage,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Failed to record invoice email log: ' . $e->getMessage());
         }
     }
 
