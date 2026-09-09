@@ -1497,9 +1497,15 @@ class OrderCrudController extends CrudController
         // Some products (e.g. Styrofoam boxes) are public/credit-card only.
         $products = Product::where('available_to_account_holders', true)->get();
 
+        // Default to the "blocks" product (Tyler's main account-holder product),
+        // matched by name rather than a hard-coded id. Falls back to the first
+        // available product if none match, so this never hard-fails.
+        $defaultProduct = $products->first(fn ($p) => stripos($p->product_name, 'block') !== false)
+            ?? $products->first();
+
         $defaultValues = [
             'customer_id'      => null,
-            'product_id'       => null,
+            'product_id'       => $defaultProduct?->id,
             'amount'           => 0,
             'pickup_delivery'  => 'delivery',
             'po_number'        => '',
