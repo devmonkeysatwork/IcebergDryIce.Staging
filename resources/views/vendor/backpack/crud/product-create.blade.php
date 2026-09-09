@@ -70,6 +70,18 @@
                                     <label for="unit">Unit</label>
                                     <input type="text" class="form-control" id="unit" name="unit"  placeholder="lbs" required>
                                 </div>
+
+                                <div class="form-group col-md-4 d-flex align-items-end">
+                                    <div class="form-check">
+                                        <input type="hidden" name="available_to_account_holders" value="0">
+                                        <input type="checkbox" class="form-check-input" id="available_to_account_holders"
+                                               name="available_to_account_holders" value="1" checked>
+                                        <label class="form-check-label" for="available_to_account_holders">
+                                            Available to account-holder orders
+                                        </label>
+                                        <div class="form-text">Uncheck for public/credit-card-only products (e.g. Styrofoam boxes).</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
